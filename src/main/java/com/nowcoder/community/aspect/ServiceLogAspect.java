@@ -29,6 +29,10 @@ public class ServiceLogAspect {
     public void before(JoinPoint joinPoint){
         // 用户[1.2.3.4]，在[xxx]，访问了[com.nowcoder.community.service.xxx()]。ta
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attributes == null){ // 之前所有对service的访问都是通过controller的，
+            // 此处防止用kafka消费者调用service无request可以get造成空指针异常
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
